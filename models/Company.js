@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const companySchema = new Schema({
   longname: { type: String, required: true, trim: true },
   shortname: { type: String, required: true, trim: true },
-  projectprefix: { type: String, required: true, trim: true, min: 1, max: 3 },
+  // projectprefix: { type: String, required: true, trim: true, min: 1, max: 3 },
   employees: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   projects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
   clients: [{ type: Schema.Types.ObjectId, ref: 'Client' }],
