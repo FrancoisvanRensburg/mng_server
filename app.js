@@ -13,6 +13,7 @@ const projectRoutes = require('./routes/projects');
 const TaskRoutes = require('./routes/tasks');
 const userRoutes = require('./routes/users');
 const commentRoutes = require('./routes/comments');
+const notificationRoutes = require('./routes/notification');
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', TaskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 

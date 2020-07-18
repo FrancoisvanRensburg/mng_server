@@ -1,7 +1,7 @@
 const Company = require('../models/Company');
 const Project = require('../models/Project');
 const User = require('../models/User');
-const { findOne } = require('../models/Project');
+const ActionNotification = require('../models/ActionNotification');
 
 // Create a project
 exports.createProject = async (req, res) => {
@@ -109,6 +109,16 @@ exports.changeProjectManager = async (req, res) => {
 
         orgPM.save();
         newPM.save();
+
+        const notificationFields = {
+          receiver: projectmanager,
+          notificationType: 'new project manager',
+          notificationProject: req.params.projectId,
+        };
+
+        const notification = new ActionNotification(notificationFields);
+        newPM.actionnotifications.push(notification);
+        notification.save();
 
         projectFields.projectmanager = projectmanager;
       }

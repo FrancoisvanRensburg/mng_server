@@ -2,6 +2,11 @@ const Company = require('../models/Company');
 const User = require('../models/User');
 const Project = require('../models/Project');
 const Task = require('../models/Task');
+const ActionNotification = require('../models/ActionNotification');
+
+// Investigate duel linking for notifiations.
+// Currently the notifications are saved to the user model,
+// but the user id is not saved in the notification array, why the fuck not
 
 // Create a new task linked to the project
 exports.createTaskForProject = async (req, res) => {
@@ -62,8 +67,17 @@ exports.createTaskForProject = async (req, res) => {
 
       const user = await User.findOne({ _id: assignee });
       user.tasks.push(taskId);
+      const notificationFields = {
+        receiver: assignee,
+        notificationType: 'task assigned',
+        notificationTask: taskId,
+      };
+
+      const notification = new ActionNotification(notificationFields);
+      user.actionnotifications.push(notification);
 
       user.save();
+      notification.save();
     }
 
     project.tasks.push(task);
@@ -121,7 +135,9 @@ exports.updateTaskById = async (req, res) => {
       const currentAssignee = task.assignee;
 
       if (currentAssignee) {
-        if (currentAssignee !== assignee) {
+        console.log('Current assignee exists');
+        if (!currentAssignee.equals(assignee)) {
+          console.log('Assignees differ');
           const { tasks } = await User.findOne({ _id: currentAssignee });
 
           const index = tasks.indexOf(req.params.taskId);
@@ -140,15 +156,36 @@ exports.updateTaskById = async (req, res) => {
           newUser.tasks.unshift(req.params.taskId);
           newUser.save();
 
+          const notificationFields = {
+            receiver: assignee,
+            notificationType: 'task assigned',
+            notificationTask: req.params.taskId,
+          };
+
+          const notification = new ActionNotification(notificationFields);
+          newUser.actionnotifications.push(notification);
+          notification.save();
+
           taskFields.assignee = assignee;
         }
       }
 
       if (!currentAssignee) {
+        console.log('NoAssignee on task');
         taskFields.assignee = assignee;
         const newUser = await User.findOne({ _id: assignee });
         newUser.tasks.unshift(req.params.taskId);
         newUser.save();
+
+        const notificationFields = {
+          receiver: newUser._id,
+          notificationType: 'task assigned',
+          notificationTask: req.params.taskId,
+        };
+
+        const notification = new ActionNotification(notificationFields);
+        newUser.actionnotifications.push(notification);
+        notification.save();
       }
     }
 
@@ -157,6 +194,22 @@ exports.updateTaskById = async (req, res) => {
       { $set: taskFields },
       { new: true }
     );
+
+    if (!task.assignee.equals(req.data.user)) {
+      console.log('PM Updated');
+      task = await Task.findOne({ _id: req.params.taskId });
+      const assignee = task.assignee;
+      const newUser = await User.findOne({ _id: assignee });
+      const notificationFields = {
+        receiver: assignee,
+        notificationType: 'task updated',
+        notificationTask: req.params.taskId,
+      };
+
+      const notification = new ActionNotification(notificationFields);
+      newUser.actionnotifications.push(notification);
+      notification.save();
+    }
     task.save();
 
     res.json(task);
