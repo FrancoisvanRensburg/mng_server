@@ -2,7 +2,6 @@ const Company = require('../models/Company');
 const User = require('../models/User');
 const Project = require('../models/Project');
 const Task = require('../models/Task');
-const router = require('../routes/tasks');
 
 // Create a new task linked to the project
 exports.createTaskForProject = async (req, res) => {
@@ -28,7 +27,10 @@ exports.createTaskForProject = async (req, res) => {
       .select(
         '-projectname -projectcode -actualstartdate -actualenddate -description'
       )
-      .populate('tasks', 'taskname');
+      .populate(
+        'tasks',
+        'taskname actualstartdate actualenddate effort ragstatus progress'
+      );
     const company = await Company.findOne({ _id: req.data.comp });
 
     const { projectcode } = project;
@@ -158,6 +160,116 @@ exports.updateTaskById = async (req, res) => {
     task.save();
 
     res.json(task);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+// Delete a task
+exports.deleteTaskById = async (req, res) => {
+  try {
+    const task = await Task.findOne({ _id: req.params.taskId });
+    const { assignee, project } = task;
+
+    // If task is assigned, then remove the task from that users task array
+    if (assignee) {
+      // Get the array of tasks of the current assignee
+      const { tasks } = await User.findById(assignee);
+
+      // Update the array to not have the task
+      const index = tasks.indexOf(req.params.taskId);
+      if (index > -1) {
+        tasks.splice(index, 1);
+      }
+
+      // Replace the updated array into the current assignee
+      // Task will therfore no longer appear in the current assignees profile
+      const user = await User.findOneAndUpdate(
+        { _id: assignee },
+        { $set: { tasks: tasks } },
+        { new: true }
+      );
+      user.save();
+    }
+
+    const projectObject = await Project.findOne({ _id: project });
+    const ptasks = projectObject.tasks;
+
+    const index = ptasks.indexOf(req.params.taskId);
+    if (index > -1) {
+      ptasks.splice(index, 1);
+    }
+
+    const newProject = await Project.findOneAndUpdate(
+      { _id: project },
+      { $set: { tasks: ptasks } },
+      { new: true }
+    ).populate(
+      'tasks',
+      'taskname actualstartdate actualenddate effort ragstatus progress'
+    );
+    newProject.save();
+
+    task.remove();
+
+    res.json(newProject.tasks);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+exports.getTaskById = async (req, res) => {
+  try {
+    const task = await Task.findOne({ _id: req.params.taskId }).populate(
+      'assignee',
+      'firstname lastname _id'
+    );
+
+    res.json(task);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+// Get all tasks for logged in user
+exports.getAllTasksForLoggedInUser = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.data.user })
+      .select('tasks')
+      .populate({
+        path: 'tasks',
+        select: 'taskname progress actualstartdate actualenddate',
+        populate: { path: 'project', select: 'projectname' },
+      });
+
+    res.json(user.tasks);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+exports.getAllTaskComments = async (req, res) => {
+  try {
+    const task = await Task.findOne({ _id: req.params.taskId })
+      .select('comments')
+      .populate({
+        path: 'comments',
+        select: 'date message author',
+        populate: { path: 'author', select: 'firstname lastname name' },
+      });
+    res.json(task.comments);
   } catch (error) {
     if (error) {
       console.error(error.message);

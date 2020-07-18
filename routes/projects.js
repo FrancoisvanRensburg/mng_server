@@ -19,6 +19,8 @@ const {
   getAllProjects,
   getProjectById,
   getAllProjectForCurrentUser,
+  getAllTasksForProject,
+  getAllProjectComments,
 } = require('../controllers/projectController');
 
 // POST api/projects
@@ -46,5 +48,9 @@ router.get('/company', auth, getAllProjects);
 router.get('/:projectId', auth, getProjectById);
 
 router.get('/', auth, getAllProjectForCurrentUser);
+
+router.get('/tasks/:projectId', auth, getAllTasksForProject);
+
+router.get('/comments/:projectId', auth, getAllProjectComments);
 
 module.exports = router;

@@ -11,6 +11,8 @@ const companyRoutes = require('./routes/company');
 const clientRoutes = require('./routes/client');
 const projectRoutes = require('./routes/projects');
 const TaskRoutes = require('./routes/tasks');
+const userRoutes = require('./routes/users');
+const commentRoutes = require('./routes/comments');
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use('/api/company', companyRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', TaskRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/comments', commentRoutes);
 
 const PORT = process.env.PORT || 5000;
 

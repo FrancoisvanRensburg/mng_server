@@ -1,6 +1,7 @@
 const Company = require('../models/Company');
 const Project = require('../models/Project');
 const User = require('../models/User');
+const { findOne } = require('../models/Project');
 
 // Create a project
 exports.createProject = async (req, res) => {
@@ -250,6 +251,7 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
+// Potentially move to userController
 exports.getAllProjectForCurrentUser = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.data.user })
@@ -260,6 +262,45 @@ exports.getAllProjectForCurrentUser = async (req, res) => {
       );
 
     res.json(user.projects);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+// get all tasks for a project
+exports.getAllTasksForProject = async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.projectId })
+      .select('tasks')
+      .populate({
+        path: 'tasks',
+        select:
+          'taskname progress actualstartdate actualenddate priority ragstatus effort assignee',
+        populate: { path: 'assignee', select: 'firstname lastname name' },
+      });
+    res.json(project.tasks);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+// get all tasks for a project
+exports.getAllProjectComments = async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.projectId })
+      .select('comments')
+      .populate({
+        path: 'comments',
+        select: 'date message author',
+        populate: { path: 'author', select: 'firstname lastname name' },
+      });
+    res.json(project.comments);
   } catch (error) {
     if (error) {
       console.error(error.message);

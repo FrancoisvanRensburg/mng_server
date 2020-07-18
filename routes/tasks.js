@@ -12,6 +12,10 @@ const { runValidation } = require('../validators/index');
 const {
   createTaskForProject,
   updateTaskById,
+  deleteTaskById,
+  getTaskById,
+  getAllTasksForLoggedInUser,
+  getAllTaskComments,
 } = require('../controllers/taskController');
 
 router.post(
@@ -29,5 +33,13 @@ router.put(
   runValidation,
   updateTaskById
 );
+
+router.delete('/:taskId', auth, deleteTaskById);
+
+router.get('/:taskId', auth, getTaskById);
+
+router.get('/', auth, getAllTasksForLoggedInUser);
+
+router.get('/comments/:taskId', auth, getAllTaskComments);
 
 module.exports = router;
