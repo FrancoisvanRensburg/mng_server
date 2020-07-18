@@ -1,5 +1,4 @@
 const Project = require('../models/Project');
-const User = require('../models/User');
 const Task = require('../models/Task');
 const CommentProject = require('../models/CommentProject');
 const CommentTask = require('../models/CommentTask');

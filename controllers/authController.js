@@ -3,6 +3,18 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
+exports.signedIn = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.data.user }).select('-password');
+    res.json(user);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server error');
+    }
+  }
+};
+
 exports.signIn = async (req, res) => {
   const { email, password } = req.body;
 
