@@ -46,7 +46,7 @@ exports.companyUpdate = async (req, res) => {
       { _id: req.data.comp },
       { $set: companyFields },
       { new: true }
-    );
+    ).select('-employees -projects -clients');
     company.save();
     res.json(company);
     // console.log(company);
