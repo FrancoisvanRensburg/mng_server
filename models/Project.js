@@ -35,6 +35,7 @@ const projectSchema = new Schema(
     inhouse: { type: Boolean },
     comments: [{ type: Schema.Types.ObjectId, ref: 'CommentProject' }],
     created: { type: Date, default: Date.now },
+    sections: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
   },
   { timestamps: { createdAt: 'created', updatedAt: false } }
 );

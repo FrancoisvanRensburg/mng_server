@@ -24,6 +24,7 @@ const taskSchema = new Schema(
     comments: [{ type: Schema.Types.ObjectId, ref: 'CommentTask' }],
     created: { type: Date, default: Date.now },
     updated: { type: Date, default: Date.now },
+    label: { type: Schema.Types.ObjectId, ref: 'Section' },
   },
   { timestamps: { createdAt: 'created', updatedAt: 'updated' } }
 );
