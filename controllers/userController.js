@@ -8,7 +8,7 @@ const router = require('../routes/tasks');
 exports.getAllUsersForCompany = async (req, res) => {
   try {
     const employees = await User.find({ company: req.data.comp }).select(
-      '-password -company'
+      '-password -company -actionnotifications'
     );
     res.json(employees);
   } catch (error) {

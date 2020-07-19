@@ -48,7 +48,7 @@ exports.createCommentTask = async (req, res) => {
   try {
     // Create a new comment object
     const comment = new CommentTask(commentFields);
-    console.log(comment);
+
     // Create dual link to task
     const task = await Task.findOne({
       _id: req.params.taskId,
