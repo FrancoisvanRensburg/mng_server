@@ -2,6 +2,7 @@ const Company = require('../models/Company');
 const Project = require('../models/Project');
 const User = require('../models/User');
 const ActionNotification = require('../models/ActionNotification');
+const Section = require('../models/Section');
 
 // Create a project
 exports.createProject = async (req, res) => {
@@ -311,6 +312,48 @@ exports.getAllProjectComments = async (req, res) => {
         populate: { path: 'author', select: 'firstname lastname name' },
       });
     res.json(project.comments);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+exports.createProjectSections = async (req, res) => {
+  const { label } = req.body;
+  try {
+    const project = await Project.findOne({ _id: req.params.projectId });
+
+    const sectionFields = {};
+    sectionFields.project = req.params.projectId;
+    if (label) sectionFields.label = label;
+    const section = new Section(sectionFields);
+
+    project.sections.push(section);
+
+    project.save();
+    section.save();
+
+    res.json(section);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+exports.getAllSectionsInProject = async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.projectId })
+      .select('sections')
+      .populate({
+        path: 'sections',
+        select: 'label tasks',
+      });
+
+    res.json(project.sections);
   } catch (error) {
     if (error) {
       console.error(error.message);

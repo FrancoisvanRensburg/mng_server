@@ -13,3 +13,7 @@ exports.setupProjectValidator = [
     return true;
   }),
 ];
+
+exports.creatProjectSectionValidator = [
+  check('label').not().isEmpty().withMessage('Section title is required'),
+];

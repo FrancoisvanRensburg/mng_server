@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 const {
   createProjectValidator,
   setupProjectValidator,
+  creatProjectSectionValidator,
 } = require('../validators/project');
 
 const { runValidation } = require('../validators/index');
@@ -21,6 +22,8 @@ const {
   getAllProjectForCurrentUser,
   getAllTasksForProject,
   getAllProjectComments,
+  createProjectSections,
+  getAllSectionsInProject,
 } = require('../controllers/projectController');
 
 // POST api/projects
@@ -52,5 +55,9 @@ router.get('/', auth, getAllProjectForCurrentUser);
 router.get('/tasks/:projectId', auth, getAllTasksForProject);
 
 router.get('/comments/:projectId', auth, getAllProjectComments);
+
+router.post('/sections/:projectId', auth, createProjectSections);
+
+router.get('/sections/:projectId', auth, getAllSectionsInProject);
 
 module.exports = router;

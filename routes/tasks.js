@@ -16,6 +16,8 @@ const {
   getTaskById,
   getAllTasksForLoggedInUser,
   getAllTaskComments,
+  addSectionToTask,
+  getAllTasksInASection,
 } = require('../controllers/taskController');
 
 router.post(
@@ -41,5 +43,9 @@ router.get('/:taskId', auth, getTaskById);
 router.get('/', auth, getAllTasksForLoggedInUser);
 
 router.get('/comments/:taskId', auth, getAllTaskComments);
+
+router.post('/sections/:taskId', auth, addSectionToTask);
+
+router.get('/sections/:sectionId', auth, getAllTasksInASection);
 
 module.exports = router;

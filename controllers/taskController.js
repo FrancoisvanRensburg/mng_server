@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Project = require('../models/Project');
 const Task = require('../models/Task');
 const ActionNotification = require('../models/ActionNotification');
+const Section = require('../models/Section');
 
 // Investigate duel linking for notifiations.
 // Currently the notifications are saved to the user model,
@@ -323,6 +324,50 @@ exports.getAllTaskComments = async (req, res) => {
         populate: { path: 'author', select: 'firstname lastname name' },
       });
     res.json(task.comments);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+exports.addSectionToTask = async (req, res) => {
+  const { section } = req.body;
+  try {
+    const taskFields = {};
+    if (section) taskFields.section = section;
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.taskId },
+      {
+        section,
+      },
+      { new: true }
+    );
+    const newSection = await Section.findOne({ _id: section });
+    newSection.tasks.push(req.params.taskId);
+    newSection.save();
+
+    task.save();
+
+    res.json(task);
+  } catch (error) {
+    if (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
+  }
+};
+
+// Investigate reducing amount od data sent to frontend relating to task
+// Will be used when the user filter the task by section
+exports.getAllTasksInASection = async (req, res) => {
+  try {
+    const section = await Section.findOne({
+      _id: req.params.sectionId,
+    }).populate('tasks');
+
+    res.json(section.tasks);
   } catch (error) {
     if (error) {
       console.error(error.message);
