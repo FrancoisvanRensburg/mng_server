@@ -90,9 +90,12 @@ exports.createTaskForProject = async (req, res) => {
       .select('tasks')
       .populate({
         path: 'tasks',
+        select:
+          'assignee tasknumber taskname actualstartdate actualenddate effort section',
+        populate: { path: 'assignee', select: 'firstname lastname name' },
       });
 
-    res.json(project.tasks);
+    res.json(prjtsks.tasks);
     // res.json(tasks);
   } catch (error) {
     if (error) {
