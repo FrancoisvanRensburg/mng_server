@@ -332,8 +332,8 @@ exports.createProjectSections = async (req, res) => {
 
     project.sections.push(section);
 
-    project.save();
-    section.save();
+    await project.save();
+    await section.save();
 
     const prjsects = await Project.findOne({ _id: req.params.projectId })
       .select('sections')

@@ -30,9 +30,7 @@ exports.createTaskForProject = async (req, res) => {
     const project = await Project.findOne({
       _id: req.params.projectId,
     })
-      .select(
-        '-projectname -projectcode -actualstartdate -actualenddate -description'
-      )
+      .select('-projectname -actualstartdate -actualenddate -description')
       .populate(
         'tasks',
         'taskname actualstartdate actualenddate effort ragstatus progress'
