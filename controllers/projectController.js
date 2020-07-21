@@ -335,7 +335,11 @@ exports.createProjectSections = async (req, res) => {
     project.save();
     section.save();
 
-    res.json(section);
+    const prjsects = await Project.findOne({ _id: req.params.projectId })
+      .select('sections')
+      .populate('sections', 'label');
+
+    res.json(prjsects.sections);
   } catch (error) {
     if (error) {
       console.error(error.message);

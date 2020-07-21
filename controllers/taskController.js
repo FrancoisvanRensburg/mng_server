@@ -86,7 +86,14 @@ exports.createTaskForProject = async (req, res) => {
     await task.save();
     await project.save();
 
+    const prjtsks = await Project.findOne({ _id: req.params.projectId })
+      .select('tasks')
+      .populate({
+        path: 'tasks',
+      });
+
     res.json(project.tasks);
+    // res.json(tasks);
   } catch (error) {
     if (error) {
       console.error(error.message);

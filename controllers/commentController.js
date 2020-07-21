@@ -30,6 +30,7 @@ exports.createCommentProject = async (req, res) => {
         select: 'message date author',
         populate: { path: 'author', select: 'firstname lastname name' },
       });
+
     res.json(prjcmts.comments);
   } catch (error) {
     if (error) {
