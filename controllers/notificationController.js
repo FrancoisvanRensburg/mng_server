@@ -17,3 +17,5 @@ exports.getActionNotificationsUser = async (req, res) => {
     }
   }
 };
+
+exports.getActionNotificationById = async (req, res) => {};
